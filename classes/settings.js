@@ -41,7 +41,10 @@ const FISHING = 30
 const LIGHTHOUSE = 31
 const WHEAT = 32
 const WORKSHOP = 33
-const GREENHOUSE = 34
+const LUMBERCAMP = 35
+const MARKET = 34
+const ENEMY = 36
+const ATTACK = 37
 
 
 let gameSettings;
@@ -63,25 +66,33 @@ let bonusTilesWeight = [10, 10, 9, 9, 9, 6, 4]
 
 
 var buildInfo = {
-  CLEAR: { cost: { population: -5, food: -50, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+  CLEAR: { cost: { population: -1, food: -5, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   EXPLORE: { cost: { population: -1, food: -5, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
-  CHOP: { cost: { population: -1, food: 0, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 5, ore: 0, gold: 0 }, restriction: null },
-  MINE: { cost: { population: -25, food: -75, lumber: -100, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 5, ore: 0, gold: 0 }, restriction: null },
+  CHOP: { cost: { population: -1, food: 0, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 25, ore: 0, gold: 0 }, restriction: null },
+  MINE: { cost: { population: -25, food: -75, lumber: -100, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 5, gold: 0 }, restriction: null },
   PASTURE: { cost: { population: -5, food: 0, lumber: -50, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   COLLECT: { cost: { population: -1, food: 0, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 5, lumber: 0, ore: 0, gold: 0 }, restriction: null },
-  LM: { cost: { population: -10, food: 50, lumber: -25, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+  LM: { cost: { population: -10, food: -50, lumber: -25, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   GM: { cost: { population: -10, food: 0, lumber: -50, ore: -25, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   FARM: { cost: { population: -10, food: -25, lumber: -75, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   HOUSE: { cost: { population: -10, food: -25, lumber: -50, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   UPGRADEHOUSE: { cost: { population: -10, food: -100, lumber: -50, ore: -10, gold: -10 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   UPGRADE: { cost: { population: -10, food: 0, lumber: -50, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   PICK: { cost: { population: -1, food: 0, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 10, lumber: 0, ore: 0, gold: 0 }, restriction: null },
-  FISHINGHUT: { cost: { population: -5, food: -25, lumber: -50, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: 'nearwater' }
+  FISHINGHUT: { cost: { population: -5, food: -25, lumber: -50, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: 'nearwater' },
+  DRAIN: { cost: { population: -5, food: -50, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+  LIGHTHOUSE: { cost: { population: -25, food: -100, lumber: -75, ore: -50, gold: -50 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: 'nearwater' },
+  WORKSHOP: { cost: { population: -25, food: -75, lumber: -100, ore: -25, gold: -25 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+  LUMBERCAMP: { cost: { population: -25, food: -100, lumber: -25, ore: -75, gold: -10 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+  MARKET: { cost: { population: -25, food: -75, lumber: -50, ore: -25, gold: -25 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+  ATTACK: { cost: { population: -1, food: -5, lumber: -5, ore: -25, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+
 }
 
 let gameData
 let gameDataDefault = {
   turn: 0,
+  enemy: { active: false, position: { row: 0, column: 0 }, hp: 2 },
   population: 75,
   food: 250,
   lumber: 0,
@@ -191,6 +202,10 @@ var tileInfo = {
           {
             name: 'FISHING HUT',
             index: 'FISHINGHUT'
+          },
+          {
+            name: 'MARKET',
+            index: 'MARKET'
           }
         ]
       }
@@ -238,6 +253,10 @@ var tileInfo = {
           {
             name: 'LUMBER MILL',
             index: 'LM'
+          },
+          {
+            name: 'MARKET',
+            index: 'MARKET'
           }
         ],
         icome: {
@@ -261,6 +280,11 @@ var tileInfo = {
       {
         name: 'CHOP',
         index: 'CHOP',
+        submenu: null
+      },
+      {
+        name: 'LUMBER CAMP',
+        index: 'LUMBERCAMP',
         submenu: null
       }
     ],
@@ -362,7 +386,13 @@ var tileInfo = {
   },
   21: {
     name: 'SWAMP',
-    menu: null,
+    menu: [
+      {
+        name: 'DRAIN',
+        index: 'DRAIN',
+        submenu: null
+      }
+    ],
     icome: {
       population: 0,
       food: 0,
@@ -438,6 +468,11 @@ var tileInfo = {
       {
         name: 'CLEAR',
         index: 'CLEAR',
+        submenu: null
+      },
+      {
+        name: 'WORKSHOP',
+        index: 'WORKSHOP',
         submenu: null
       }
     ],
@@ -555,7 +590,92 @@ var tileInfo = {
       ore: 0,
       gold: 0,
     }
-  }
+  },
+  30: {
+    name: 'FISHING HUT',
+    menu: [
+      {
+        name: 'CLEAR',
+        index: 'CLEAR',
+        submenu: null
+      }
+    ],
+    icome: {
+      population: 0,
+      food: 0,
+      lumber: 1,
+      ore: 0,
+      gold: 0,
+    }
+  },
+  35: {
+    name: 'LUMBER CAMP',
+    menu: [
+      {
+        name: 'CLEAR',
+        index: 'CLEAR',
+        submenu: null
+      }
+    ],
+    icome: {
+      population: 0,
+      food: 0,
+      lumber: 1,
+      ore: 0,
+      gold: 0,
+    }
+  },
+  33: {
+    name: 'WORKSHOP',
+    menu: [
+      {
+        name: 'CLEAR',
+        index: 'CLEAR',
+        submenu: null
+      }
+    ],
+    icome: {
+      population: 0,
+      food: 0,
+      lumber: 1,
+      ore: 0,
+      gold: 0,
+    }
+  },
+  36: {
+    name: 'ENEMY',
+    menu: [
+      {
+        name: 'ATTACK',
+        index: 'ATTACK',
+        submenu: null
+      }
+    ],
+    icome: {
+      population: 0,
+      food: 0,
+      lumber: 1,
+      ore: 0,
+      gold: 0,
+    }
+  },
+  34: {
+    name: 'MARKET',
+    menu: [
+      {
+        name: 'CLEAR',
+        index: 'CLEAR',
+        submenu: null
+      }
+    ],
+    icome: {
+      population: 0,
+      food: 0,
+      lumber: 1,
+      ore: 0,
+      gold: 0,
+    }
+  },
 }
 
 
