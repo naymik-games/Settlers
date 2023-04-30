@@ -313,7 +313,7 @@ class playGame extends Phaser.Scene {
     this.gainContainer.setAlpha(0)
 
     //this.infoText = this.add.bitmapText(game.config.width / 2, (gameOptions.offsetY + gameOptions.rows * gameOptions.tileSize) + 75, 'topaz', 'Info', 40).setOrigin(.5).setTint(0xAEB6BF);
-    this.infoText = this.add.text(game.config.width / 2, (gameOptions.offsetY + gameOptions.rows * gameOptions.tileSize) + 75, 'INFO', { fontFamily: 'PixelSquare', fontSize: '45px', color: '#fafafa', align: 'center' }).setOrigin(.5).setTint(0xAEB6BF);
+    this.infoText = this.add.text(game.config.width / 2, (gameOptions.offsetY + gameOptions.rows * gameOptions.tileSize) + 55, 'INFO', { fontFamily: 'PixelSquare', fontSize: '45px', color: '#fafafa', align: 'center' }).setOrigin(.5).setTint(0xAEB6BF);
 
     this.buildContainer = this.add.container()
     this.okIcon = this.add.image(gameOptions.offsetX + gameOptions.tileSize * 8 + gameOptions.tileSize / 2, (gameOptions.offsetY + gameOptions.rows * gameOptions.tileSize) + 75, 'icons', 0).setScale(gameOptions.scale).setInteractive()
@@ -827,7 +827,7 @@ class playGame extends Phaser.Scene {
 
   }
   displaySubmenu(menuItem) {
-    var menuOffsetY = (gameOptions.offsetY + gameOptions.rows * gameOptions.tileSize) + 170
+    var menuOffsetY = (gameOptions.offsetY + gameOptions.rows * gameOptions.tileSize) + 130
     this.menu1 = this.add.container()
     if (menuItem.submenu != null) {
       for (let i = 0; i < menuItem.submenu.length; i++) {
