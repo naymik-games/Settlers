@@ -47,6 +47,7 @@ const ENEMY = 36
 const ATTACK = 37
 const GREENHOUSE = 38
 const AQUADUCT = 39
+const TOWER = 40
 
 let gameSettings;
 var defaultValues = {
@@ -93,6 +94,8 @@ var buildInfo = {
   ATTACK: { cost: { population: -1, food: -5, lumber: -5, ore: -25, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   GREENHOUSE: { cost: { population: -25, food: -100, lumber: -50, ore: -25, gold: -25 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   AQUADUCT: { cost: { population: -75, food: -50, lumber: -100, ore: -50, gold: -25 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: 'nearwater' },
+  TOWER: { cost: { population: -5, food: -5, lumber: -10, ore: -20, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+  DEFEND: { cost: { population: -5, food: 5, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
 
 }
 
@@ -105,6 +108,7 @@ let gameDataDefault = {
   lumber: 0,
   ore: 0,
   gold: 0,
+  defense: 0,
   time: { turn: 1, population: 1, food: 1, lumber: 1, ore: 1, gold: 1 }
 
 }
@@ -213,6 +217,10 @@ var tileInfo = {
           {
             name: 'MARKET',
             index: 'MARKET'
+          },
+          {
+            name: 'TOWER',
+            index: 'TOWER'
           }
         ]
       }
@@ -268,6 +276,10 @@ var tileInfo = {
           {
             name: 'AQUADUCT',
             index: 'AQUADUCT'
+          },
+          {
+            name: 'TOWER',
+            index: 'TOWER'
           }
         ],
         icome: {
@@ -729,6 +741,24 @@ var tileInfo = {
   39: {
     name: 'AQUADUCT',
     menu: [
+      {
+        name: 'CLEAR',
+        index: 'CLEAR',
+        submenu: null
+      }
+    ],
+    icome: {
+      population: 0,
+      food: 0,
+      lumber: 1,
+      ore: 0,
+      gold: 0,
+    }
+  },
+  40: {
+    name: 'TOWER',
+    menu: [
+
       {
         name: 'CLEAR',
         index: 'CLEAR',

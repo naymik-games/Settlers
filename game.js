@@ -27,7 +27,7 @@ window.onload = function () {
       height: 1640
     },
     pixelArt: true,
-    scene: [preloadGame, startGame, playGame, UI]
+    scene: [preloadGame, startGame, playGame, pauseGame, UI]
   }
   game = new Phaser.Game(gameConfig);
   window.focus();
@@ -340,19 +340,35 @@ class playGame extends Phaser.Scene {
       console.log('Do Not Build ' + this.action)
     }, this)
 
-    this.attackIcon = this.add.image(50, (gameOptions.offsetY + gameOptions.rows * gameOptions.tileSize) + 75, 'tiles', ATTACK).setScale(gameOptions.scale).setInteractive().setAlpha(0)
+    this.attackIcon = this.add.image(50, (gameOptions.offsetY + gameOptions.rows * gameOptions.tileSize) + 75, 'tiles', ATTACK).setScale(gameOptions.scale).setInteractive().setAlpha(1)
+    this.attackText = this.add.text(150, (gameOptions.offsetY + gameOptions.rows * gameOptions.tileSize) + 75, gameData.defense, { fontFamily: 'PixelSquare', fontSize: '45px', color: '#AEB6BF', align: 'center' }).setOrigin(.5).setTint(0xAEB6BF).setAlpha(0);
+
     this.attackIcon.on('pointerdown', function () {
-      console.log(this.enemyArray[gameData.enemy.position.row][gameData.enemy.position.column])
+      //console.log(this.enemyArray[gameData.enemy.position.row][gameData.enemy.position.column])
       //this.enemyArray[gameData.enemy.position.row][gameData.enemy.position.column].destory()
-      this.enemy.setPosition(0, 0)
-      this.enemy.setAlpha(0)
-      gameData.enemy.active = false
-      this.attackIcon.setAlpha(0)
+      if (gameData.defense >= 25) {
+        this.enemy.setPosition(0, 0)
+        this.enemy.setAlpha(0)
+        gameData.enemy.active = false
+        gameData.defense -= 25
+        this.updateText()
+        this.attackIcon.setAlpha(0)
+        this.attackText.setAlpha(0)
+      }
+
     }, this)
 
     this.input.on("pointerdown", this.tileSelect, this)
-
-
+    this.homeIcon = this.add.image(75, 1500, 'icons-game', 1).setScale(.5).setInteractive()
+    this.homeIcon.on('pointerdown', function () {
+      this.scene.stop()
+      this.scene.start('startGame');
+    }, this)
+    this.helpIcon = this.add.image(150, 1500, 'icons-game', 8).setScale(.5).setInteractive()
+    this.helpIcon.on('pointerdown', function () {
+      this.scene.pause()
+      this.scene.launch('pauseGame');
+    }, this)
     console.log(map)
 
   }
@@ -369,6 +385,9 @@ class playGame extends Phaser.Scene {
   newDay() {
     gameData.turn++
     //add random tile to empty one
+    var towers = countType(TOWER)
+    gameData.defense += towers
+
     if (Phaser.Math.Between(1, 100) > 50) {
       var empty = this.getRandomEmpty()
       console.log(empty)
@@ -408,7 +427,7 @@ class playGame extends Phaser.Scene {
       })
 
     } else {
-      if (Phaser.Math.Between(1, 100) > 74) {
+      if (Phaser.Math.Between(1, 100) > 74 && gameData.turn > 15) {
         var placed = false
         while (!placed) {
           var randRow = Phaser.Math.Between(0, gameOptions.rows - 1)
@@ -517,6 +536,8 @@ class playGame extends Phaser.Scene {
         this.green(this.currentTile.row, this.currentTile.column)
       } else if (this.action == 'AQUADUCT') {
         this.aquaduct(this.currentTile.row, this.currentTile.column)
+      } else if (this.action == 'TOWER') {
+        this.tower(this.currentTile.row, this.currentTile.column)
       }
       gameData.population += buildInfo[this.action].cost.population
       gameData.food += buildInfo[this.action].cost.food
@@ -738,6 +759,14 @@ class playGame extends Phaser.Scene {
     this.goldTween.setTimeScale(gameData.time.population)
 
   }
+  tower(row, column) {
+    this.explode(row, column)
+    this.gameArray[row][column].cardIndex = TOWER
+    this.gameArray[row][column].card.setFrame(TOWER)
+    map[row][column] = TOWER
+
+
+  }
   tileSelect(pointer) {
     let row = Math.floor((pointer.y - gameOptions.offsetY) / gameOptions.tileSize);
     let col = Math.floor((pointer.x - gameOptions.offsetX) / gameOptions.tileSize);
@@ -745,6 +774,7 @@ class playGame extends Phaser.Scene {
     if (this.validPick(row, col)) {
       this.buildContainer.setAlpha(0)
       this.attackIcon.setAlpha(0)
+      this.attackText.setAlpha(0)
       this.selector.y = 1800
       if (this.menu1) {
         this.menu1.destroy()
@@ -756,6 +786,7 @@ class playGame extends Phaser.Scene {
       if (gameData.enemy.active) {
         if (gameData.enemy.position.row == row && gameData.enemy.position.column == col) {
           this.attackIcon.setAlpha(1)
+          this.attackText.setAlpha(1)
         }
       }
 
@@ -796,14 +827,14 @@ class playGame extends Phaser.Scene {
 
   }
   displaySubmenu(menuItem) {
-    var menuOffsetY = (gameOptions.offsetY + gameOptions.rows * gameOptions.tileSize) + 175
+    var menuOffsetY = (gameOptions.offsetY + gameOptions.rows * gameOptions.tileSize) + 170
     this.menu1 = this.add.container()
     if (menuItem.submenu != null) {
       for (let i = 0; i < menuItem.submenu.length; i++) {
 
         const menuIt = menuItem.submenu[i];
 
-        var item = this.add.bitmapText(game.config.width / 2, menuOffsetY + i * 65, 'topaz', menuIt.name, 50).setOrigin(.5).setTint(0xfafafa).setInteractive();
+        var item = this.add.bitmapText(game.config.width / 2, menuOffsetY + i * 60, 'topaz', menuIt.name, 50).setOrigin(.5).setTint(0xfafafa).setInteractive();
         item.menuItem = menuIt.index
 
         if (buildInfo[menuIt.index].restriction != null) {
@@ -975,6 +1006,7 @@ class playGame extends Phaser.Scene {
     this.lumberText.setText(gameData.lumber)
     this.oreText.setText(gameData.ore)
     this.goldText.setText(gameData.gold)
+    this.attackText.setText(gameData.defense)
 
   }
   updateCostText() {
