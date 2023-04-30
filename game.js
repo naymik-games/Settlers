@@ -148,6 +148,7 @@ class playGame extends Phaser.Scene {
       },
       onRepeatScope: this,
     })
+    this.baseTween.setTimeScale(gameData.time.turn)
     this.populationTween.setTimeScale(gameData.time.population)
     this.foodTween.setTimeScale(gameData.time.food)
     this.lumberTween.setTimeScale(gameData.time.lumber)
@@ -443,14 +444,15 @@ class playGame extends Phaser.Scene {
   }
   newPopulation() {
     var houses = countType(HOUSE)
-    gameData.population += 1 + houses
+    var bighouses = countType(BIGHOUSE)
+    gameData.population += 1 + houses + (bighouses * 2)
     this.updateText()
   }
   newFood() {
     var pastures = countType(PASTURE)
     var farms = countType(FARM)
     var fishes = countType(FISHING)
-    gameData.food += 1 + farms + pastures + fishes
+    gameData.food += 1 + (farms * 2) + pastures + fishes
     this.updateText()
   }
   newLumber() {
@@ -497,7 +499,7 @@ class playGame extends Phaser.Scene {
         this.goldMine(this.currentTile.row, this.currentTile.column)
       } else if (this.action == 'PICK') {
         this.pick(this.currentTile.row, this.currentTile.column)
-      } else if (this.action == 'UPGRADE') {
+      } else if (this.action == 'OUTPOST') {
         this.upgrade(this.currentTile.row, this.currentTile.column)
       } else if (this.action == 'DRAIN') {
         this.drain(this.currentTile.row, this.currentTile.column)
@@ -509,6 +511,12 @@ class playGame extends Phaser.Scene {
         this.workshop(this.currentTile.row, this.currentTile.column)
       } else if (this.action == 'MARKET') {
         this.market(this.currentTile.row, this.currentTile.column)
+      } else if (this.action == 'CASTLE') {
+        this.castle(this.currentTile.row, this.currentTile.column)
+      } else if (this.action == 'GREENHOUSE') {
+        this.green(this.currentTile.row, this.currentTile.column)
+      } else if (this.action == 'AQUADUCT') {
+        this.aquaduct(this.currentTile.row, this.currentTile.column)
       }
       gameData.population += buildInfo[this.action].cost.population
       gameData.food += buildInfo[this.action].cost.food
@@ -682,9 +690,13 @@ class playGame extends Phaser.Scene {
   }
   upgrade(row, column) {
     this.explode(row, column)
+    this.gameArray[row][column].card.stop('fire_anim')
+    this.gameArray[row][column].card.setTexture('tiles')
     this.gameArray[row][column].cardIndex = OUTPOST
     this.gameArray[row][column].card.setFrame(OUTPOST)
     map[row][column] = OUTPOST
+    gameData.time.turn += .25
+    this.goldTween.setTimeScale(gameData.time.turn)
     // console.log(this.gameArray[row][column].cardIndex)
     /* if (this.gameArray[row][column].cardIndex == FIRE) {
       this.gameArray[row][column].cardIndex = OUTPOST
@@ -695,6 +707,35 @@ class playGame extends Phaser.Scene {
       this.gameArray[row][column].card.setFrame(CASTLE)
       map[row][column] = CASTLE
     } */
+
+  }
+  castle(row, column) {
+    this.explode(row, column)
+    this.gameArray[row][column].cardIndex = CASTLE
+    this.gameArray[row][column].card.setFrame(CASTLE)
+    map[row][column] = CASTLE
+    gameData.time.turn += .5
+    this.goldTween.setTimeScale(gameData.time.turn)
+
+  }
+  green(row, column) {
+    this.explode(row, column)
+    this.gameArray[row][column].card.stop('farm_anim')
+    this.gameArray[row][column].card.setTexture('tiles')
+    this.gameArray[row][column].cardIndex = GREENHOUSE
+    this.gameArray[row][column].card.setFrame(GREENHOUSE)
+    map[row][column] = GREENHOUSE
+    gameData.time.food += .25
+    this.goldTween.setTimeScale(gameData.time.food)
+
+  }
+  aquaduct(row, column) {
+    this.explode(row, column)
+    this.gameArray[row][column].cardIndex = AQUADUCT
+    this.gameArray[row][column].card.setFrame(AQUADUCT)
+    map[row][column] = AQUADUCT
+    gameData.time.population += .25
+    this.goldTween.setTimeScale(gameData.time.population)
 
   }
   tileSelect(pointer) {

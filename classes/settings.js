@@ -45,7 +45,8 @@ const LUMBERCAMP = 35
 const MARKET = 34
 const ENEMY = 36
 const ATTACK = 37
-
+const GREENHOUSE = 38
+const AQUADUCT = 39
 
 let gameSettings;
 var defaultValues = {
@@ -70,14 +71,18 @@ var buildInfo = {
   EXPLORE: { cost: { population: -1, food: -5, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   CHOP: { cost: { population: -1, food: 0, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 25, ore: 0, gold: 0 }, restriction: null },
   MINE: { cost: { population: -25, food: -75, lumber: -100, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 5, gold: 0 }, restriction: null },
-  PASTURE: { cost: { population: -5, food: 0, lumber: -50, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   COLLECT: { cost: { population: -1, food: 0, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 5, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   LM: { cost: { population: -10, food: -50, lumber: -25, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   GM: { cost: { population: -10, food: 0, lumber: -50, ore: -25, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   FARM: { cost: { population: -10, food: -25, lumber: -75, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+  PASTURE: { cost: { population: -5, food: 0, lumber: -50, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+
+
   HOUSE: { cost: { population: -10, food: -25, lumber: -50, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   UPGRADEHOUSE: { cost: { population: -10, food: -100, lumber: -50, ore: -10, gold: -10 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
-  UPGRADE: { cost: { population: -10, food: 0, lumber: -50, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+  OUTPOST: { cost: { population: -10, food: -100, lumber: -150, ore: -10, gold: -25 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+  CASTLE: { cost: { population: -20, food: -200, lumber: -200, ore: -50, gold: -75 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+
   PICK: { cost: { population: -1, food: 0, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 10, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   FISHINGHUT: { cost: { population: -5, food: -25, lumber: -50, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: 'nearwater' },
   DRAIN: { cost: { population: -5, food: -50, lumber: 0, ore: 0, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
@@ -86,6 +91,8 @@ var buildInfo = {
   LUMBERCAMP: { cost: { population: -25, food: -100, lumber: -25, ore: -75, gold: -10 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   MARKET: { cost: { population: -25, food: -75, lumber: -50, ore: -25, gold: -25 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
   ATTACK: { cost: { population: -1, food: -5, lumber: -5, ore: -25, gold: 0 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+  GREENHOUSE: { cost: { population: -25, food: -100, lumber: -50, ore: -25, gold: -25 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: null },
+  AQUADUCT: { cost: { population: -75, food: -50, lumber: -100, ore: -50, gold: -25 }, gain: { population: 0, food: 0, lumber: 0, ore: 0, gold: 0 }, restriction: 'nearwater' },
 
 }
 
@@ -98,7 +105,7 @@ let gameDataDefault = {
   lumber: 0,
   ore: 0,
   gold: 0,
-  time: { population: 1, food: 1, lumber: 1, ore: 1, gold: 1 }
+  time: { turn: 1, population: 1, food: 1, lumber: 1, ore: 1, gold: 1 }
 
 }
 var map
@@ -222,8 +229,8 @@ var tileInfo = {
     name: 'BONFIRE',
     menu: [
       {
-        name: 'UPGRADE',
-        index: 'UPGRADE',
+        name: 'OUTPOST',
+        index: 'OUTPOST',
         submenu: null
       }
     ],
@@ -257,6 +264,10 @@ var tileInfo = {
           {
             name: 'MARKET',
             index: 'MARKET'
+          },
+          {
+            name: 'AQUADUCT',
+            index: 'AQUADUCT'
           }
         ],
         icome: {
@@ -491,6 +502,11 @@ var tileInfo = {
         name: 'CLEAR',
         index: 'CLEAR',
         submenu: null
+      },
+      {
+        name: 'GREEN HOUSE',
+        index: 'GREENHOUSE',
+        submenu: null
       }
     ],
     icome: {
@@ -574,12 +590,12 @@ var tileInfo = {
       gold: 0,
     }
   },
-  29: {
+  11: {
     name: 'OUTPOST',
     menu: [
       {
-        name: 'UPGRADE',
-        index: 'UPGRADE',
+        name: 'CASTLE',
+        index: 'CASTLE',
         submenu: null
       }
     ],
@@ -676,8 +692,60 @@ var tileInfo = {
       gold: 0,
     }
   },
+  12: {
+    name: 'CASTLE',
+    menu: [
+      {
+        name: 'CLEAR',
+        index: 'CLEAR',
+        submenu: null
+      }
+    ],
+    icome: {
+      population: 0,
+      food: 0,
+      lumber: 1,
+      ore: 0,
+      gold: 0,
+    }
+  },
+  38: {
+    name: 'GREEN HOUSE',
+    menu: [
+      {
+        name: 'CLEAR',
+        index: 'CLEAR',
+        submenu: null
+      }
+    ],
+    icome: {
+      population: 0,
+      food: 0,
+      lumber: 1,
+      ore: 0,
+      gold: 0,
+    }
+  },
+  39: {
+    name: 'AQUADUCT',
+    menu: [
+      {
+        name: 'CLEAR',
+        index: 'CLEAR',
+        submenu: null
+      }
+    ],
+    icome: {
+      population: 0,
+      food: 0,
+      lumber: 1,
+      ore: 0,
+      gold: 0,
+    }
+  }
 }
 
-
+//greenhouse increase food speed
+//aquaduct increase pop speed
 
 
